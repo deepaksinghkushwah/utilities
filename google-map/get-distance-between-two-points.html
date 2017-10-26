@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simple map to get distance between two points</title>
+	<meta name="viewport" content="initial-scale=1.0">
+	<meta charset="utf-8">
+	<style>
+      /* Always set the map height explicitly to define the size of the div
+      * element that contains the map. */
+      #map {
+      	height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+      	height: 100%;
+      	margin: 0;
+      	padding: 0;
+      }
+      
+
+  </style>
+</head>
+<body>
+	
+	<div id="map"></div>
+	<script
+	src="https://code.jquery.com/jquery-2.2.4.min.js"
+	integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+	crossorigin="anonymous"></script>
+	<script>
+		
+		function initMap() {
+			var map;
+			var soruceLatLang = '';
+			var destLatLang = '';
+			
+			var API_KEY = 'SET YOUR API KEY HERE';
+			var contentString = "";
+			map = new google.maps.Map(document.getElementById('map'), {
+				center: {lat: -34.397, lng: 150.644},
+				zoom: 8
+			});
+			google.maps.event.addListener(map, 'click', function(event) {
+				if(soruceLatLang==''){
+					soruceLatLang = {lat: event.latLng.lat(), lng: event.latLng.lng()};
+				} else {
+					destLatLang =  {lat: event.latLng.lat(), lng: event.latLng.lng()};
+				}
+
+				
+
+				if(soruceLatLang!='' && destLatLang!=''){
+					var service = new google.maps.DistanceMatrixService();
+					service.getDistanceMatrix({
+						origins: [soruceLatLang],
+						destinations: [destLatLang],
+						unitSystem: google.maps.UnitSystem.METRIC,
+						travelMode: 'DRIVING',
+					}, responseCallback);
+					function responseCallback(response, status){
+						console.log(response);
+						if(status == 'OK'){
+							contentString = "<b>Distance between points is : </b>" + response.rows[0].elements[0].distance.text;
+							var infowindow = new google.maps.InfoWindow({
+								content: contentString
+							});
+							infowindow.open(map);
+							infowindow.setPosition(map.getCenter());
+						}						
+						soruceLatLang = '';
+						destLatLang = '';
+					}
+				}
+			});
+
+			
+		}
+
+	</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=API_KEY&callback=initMap"
+	async defer></script>
+</body>
+</html>
